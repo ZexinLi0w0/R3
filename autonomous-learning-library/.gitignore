@@ -1,0 +1,23 @@
+# python
+*.pyc
+__pycache__
+autonomous_learning_library.egg-info
+
+# build directories
+/build
+/dist
+
+# editor
+.vscode
+.idea
+*.code-workspace
+
+# non-committed code
+local
+legacy
+/runs
+/out
+
+# notebooks
+*.ipynb
+*.ipynb_checkpoints

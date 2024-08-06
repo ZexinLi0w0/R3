@@ -52,10 +52,13 @@ class Experiment(ABC):
     def episode(self):
         '''The index of the current training episode'''
 
-    def _log_training_episode(self, returns, fps, train_fps, elasped_train_time, spent_budget, data_budget):
+    def _log_training_episode(self, returns, fps, train_fps, elasped_train_time, spent_budget, data_budget, 
+                              latency=0.0, deadline=0.0, rb_size=0.0, b_size=0.0):
         if not self._quiet:
-            print('episode: {}, frame: {}, fps: {}, train_fps: {}, elasped_train_time: {}, returns: {}, spent_budget: {}, data_budget: {}'
-                  .format(self.episode, self.frame, int(fps), int(train_fps), elasped_train_time, returns, spent_budget, data_budget))
+            print('episode: {}, frame: {}, fps: {}, train_fps: {}, elasped_train_time: {}, returns: {}, spent_budget: {}, data_budget: {}, ' \
+                  'latency: {}, deadline: {}, replay_buffer_size: {}, batch_size: {}'
+                  .format(self.episode, self.frame, int(fps), int(train_fps), elasped_train_time, returns, spent_budget, data_budget, 
+                          latency, deadline, rb_size, b_size))
         if returns > self._best_returns:
             self._best_returns = returns
         self._returns100.append(returns)

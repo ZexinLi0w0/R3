@@ -34,6 +34,13 @@ class State(dict):
     """
 
     def __init__(self, x, device='cpu', **kwargs):
+
+        # Store the observations pointer
+        # if isinstance(x, dict):
+        #     if 'observation' in x:
+        #         if torch.is_tensor(x['observation']):
+        #             x['observation'] = x['observation'].data_ptr()
+
         if not isinstance(x, dict):
             x = {'observation': x}
         for k, v in kwargs.items():

@@ -21,7 +21,9 @@ class ParallelEnvExperiment(Experiment):
             quiet=False,
             render=False,
             verbose=True,
-            logger="tensorboard"
+            logger="tensorboard",
+            D_deadline=0.0,
+            lambda_deadline=0.0,
     ):
         self._name = name if name is not None else preset.name
         super().__init__(self._make_logger(logdir, self._name, env.name, verbose, logger), quiet)

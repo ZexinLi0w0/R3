@@ -5,6 +5,7 @@ from all.core import State
 from all.optim import Schedulable
 from .segment_tree import SumSegmentTree, MinSegmentTree
 
+from threading import Thread, Condition
 
 class ReplayBuffer(ABC):
     @abstractmethod
@@ -19,6 +20,13 @@ class ReplayBuffer(ABC):
     def update_priorities(self, indexes, td_errors):
         '''Update priorities based on the TD error'''
 
+    @abstractmethod
+    def buffer_resize(self, size):
+        '''Resize the replay buffer'''
+
+    @abstractmethod
+    def stop_thread(self):
+        '''Stop the thread'''
 
 # Adapted from:
 # https://github.com/Shmuma/ptan/blob/master/ptan/experience.py
@@ -32,16 +40,40 @@ class ExperienceReplayBuffer(ReplayBuffer):
             store_device = self.device
         self.store_device = torch.device(store_device)
 
+        # Create a threaded function here?
+        self._minibatch_size = 64
+        self.sampled_data = None
+        self.sample_cv = Condition()
+        self._done = False
+        self.thread = Thread(target=self.asynchronous_sample, args=())
+        self.thread.start()
+
     def store(self, state, action, next_state):
         if state is not None and not state.done:
             state = state.to(self.store_device)
             next_state = next_state.to(self.store_device)
             self._add((state, action, next_state))
+            self.sample_cv.acquire()
+            self.sample_cv.notify()
+            self.sample_cv.release()
 
     def sample(self, batch_size):
-        keys = np.random.choice(len(self.buffer), batch_size, replace=True)
-        minibatch = [self.buffer[key] for key in keys]
-        return self._reshape(minibatch, torch.ones(batch_size, device=self.device))
+        return self.sampled_data
+
+    def asynchronous_sample(self):
+        while True:
+            # Wait for data to be available
+            self.sample_cv.acquire()
+            self.sample_cv.wait()
+            self.sample_cv.release()
+
+            if self._done:
+                return
+
+            # Get some sample from the stored data
+            keys = np.random.choice(len(self.buffer), self._minibatch_size, replace=True)
+            minibatch = [self.buffer[key] for key in keys]
+            self.sampled_data = self._reshape(minibatch, torch.ones(self._minibatch_size, device=self.device))
 
     def update_priorities(self, td_errors):
         pass
@@ -68,6 +100,47 @@ class ExperienceReplayBuffer(ReplayBuffer):
     def __iter__(self):
         return iter(self.buffer)
 
+    def buffer_resize(self, size):
+        """
+        Function to resize the buffer.
+        """
+        if size > 0:
+            if size < self.capacity:
+                # Remove elements from the beginning
+                if len(self.buffer) > size:
+                    # Delete the first len - size tensors
+                    for _ in range(0, len(self.buffer) - size):
+                        del self.buffer[0]
+                    self.pos = 0
+
+            # Set new capacity
+            self.capacity = size
+
+    def stop_thread(self):
+        """
+        Function to stop the thread that performs asynchronous sampling.
+        """
+        self._done = True
+        self.sample_cv.acquire()
+        self.sample_cv.notify()
+        self.sample_cv.release()
+
+    def update_batch_size(self, batch_size):
+        """
+        Function to update the batch size.
+
+        @param batch_size - New minibatch size for sampling.
+        """
+        self.minibatch_size = batch_size
+
+    @property
+    def minibatch_size(self):
+        return self._minibatch_size
+
+    @minibatch_size.setter
+    def minibatch_size(self, new_size):
+        assert(new_size > 0)
+        self._minibatch_size = new_size
 
 class PrioritizedReplayBuffer(ExperienceReplayBuffer, Schedulable):
     def __init__(
@@ -148,6 +221,13 @@ class PrioritizedReplayBuffer(ExperienceReplayBuffer, Schedulable):
             res.append(idx)
         return res
 
+    def buffer_resize(self, size):
+        '''Resize the replay buffer'''
+        super().buffer_resize(size)
+
+    def stop_thread(self):
+        '''Stop the thread'''
+        super().stop_thread()
 
 class NStepReplayBuffer(ReplayBuffer):
     '''Converts any ReplayBuffer into an NStepReplayBuffer'''
@@ -201,3 +281,10 @@ class NStepReplayBuffer(ReplayBuffer):
 
     def __len__(self):
         return len(self.buffer)
+
+    def buffer_resize(self, size):
+        pass
+
+    def stop_thread(self):
+        '''Stop the thread'''
+        pass

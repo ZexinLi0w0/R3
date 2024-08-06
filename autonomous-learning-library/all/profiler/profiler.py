@@ -48,6 +48,16 @@ class Profiler():
 
         return memory_usage
 
+    def profile_memory_get_bytes(self):
+        """
+        Function to get the percentage of memory used.
+        """
+        # Getting all memory using os.popen()
+        total_memory, used_memory, free_memory = map(
+            int, os.popen('free -t -m').readlines()[-1].split()[1:])
+
+        return total_memory, used_memory, free_memory
+
     def profile_energy(self, energy_process):
         """
         Function to get the energy statistics and return the float value.

@@ -1,6 +1,6 @@
 import unittest
 
-from batch_size_control import BatchControl
+from all.r3.batch_size_control import BatchControl
 
 class BatchSizeControlTest(unittest.TestCase):
 

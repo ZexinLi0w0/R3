@@ -1,6 +1,6 @@
 import unittest
 
-from deadline import Deadline
+from all.r3.deadline import Deadline
 
 class DeadlineTest(unittest.TestCase):
 

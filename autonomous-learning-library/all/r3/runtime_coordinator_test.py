@@ -1,6 +1,6 @@
 import unittest
 
-from runtime_coordinator import RuntimeCoordinator
+from all.r3.runtime_coordinator import RuntimeCoordinator
 
 class RuntimeCoordinatorTest(unittest.TestCase):
 

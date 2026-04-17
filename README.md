@@ -8,7 +8,7 @@ Official Implementation of RTSS 2023 paper [R^3: On-device Real-Time Deep Reinfo
 > | Component | Modernized branch | Original (legacy) |
 > |-----------|------------------|-------------------|
 > | Python | **3.10** | 3.8.10 |
-> | PyTorch | **2.5.x** (`>=2.0`) | 1.13.0 |
+> | PyTorch | **2.8.x** (`>=2.5`) | 1.13.0 |
 > | RL API | **Gymnasium `>=0.29`** | gym 0.15.3 |
 > | autonomous-learning-library | **0.9.1** | 0.8.1 |
 > | JetPack (Jetson) | **6.2** | 5.0.2 |
@@ -24,11 +24,12 @@ Official Implementation of RTSS 2023 paper [R^3: On-device Real-Time Deep Reinfo
 > # 1. Create env (Python 3.10 ships with JetPack 6.2)
 > python3.10 -m venv ~/.venvs/r3 && source ~/.venvs/r3/bin/activate
 >
-> # 2. Install PyTorch 2.5 wheel from Jetson AI Lab
-> #    Browse https://pypi.jetson-ai-lab.dev/jp6/cu126 for the wheel that matches
-> #    your JetPack 6.2 / CUDA 12.6 build, then:
-> pip install --extra-index-url https://pypi.jetson-ai-lab.dev/jp6/cu126 \
->     torch torchvision torchaudio
+> # 2. Install PyTorch wheel from Jetson AI Lab (PyTorch 2.8+ on JP6 / CUDA 12.6)
+> #    Browse https://pypi.jetson-ai-lab.io/jp6/cu126 for the wheel that matches
+> #    your JetPack 6.2 / CUDA 12.6 build. Note: the JP6/cu126 index currently
+> #    publishes torch >= 2.8 only; older 2.5/2.6 wheels are not available.
+> pip install --extra-index-url https://pypi.jetson-ai-lab.io/jp6/cu126 \
+>     "torch>=2.8" torchvision torchaudio
 >
 > # 3. Install the rest
 > cd autonomous-learning-library && pip install -e . && cd ..
@@ -46,48 +47,15 @@ Evaluation: we implement R^3 based on Autonomous Learning Library(ALL) library w
 Practical case study: We adopt gym-donkeycar simulator to conduct deep reinforcement learning via gym APIs on DonkeyCar simulator.
 
 # Quick Start
-1. Install the dependencies.
 
-On x86 PC
+For the modernized stack (PyTorch 2.8 + Gymnasium + Python 3.10 on JetPack 6.x),
+follow the **Quick install** snippet in the Modernized Branch banner above, then
+jump to step 2.
 
-Install Donkey simulator v22.11.06 from [Official version of Donkey Car](https://github.com/tawnkramer/gym-donkeycar). 
-
-gym-donkeycar recommend version: cd0cad6
-
-Installation on PC
-```bash
-conda create -n rapidlearn python=3.8.10 # create a new conda environment named rapidlearn with python 3.8.10 (as on AGX)
-conda activate rapidlearn
-conda install pytorch torchvision torchaudio pytorch-cuda=11.7 -c pytorch -c nvidia # install pytorch 1.13.1 stable version
-# cd gym-donkeycar-mushr
-# python setup.py install # install the customized gym wrapper
-cd gym-donkeycar
-python setup.py install
-cd ../MUSHR-DL
-pip install -r requirements.txt # install the other dependencies
-```
-
-Installation on NVIDIA Jetson AGX
-
-Software version: Jetpack 5.0.2
-
-Hardware: NVIDIA Jetson AGX Orin & NVIDIA Jetson AGX Xavier
-
-Software: Ubuntu 20.04.5 LTS; Python 3.8.10; PyTorch 1.13.0; Tensorflow 1.15.5+nv22.12; gym 0.15.3; gym-donkeycar 1.3.0
-
-```bash
-conda create -n rapidlearn python=3.8.10 # create a new conda environment named rapidlearn with python 3.8.10 (as on AGX)
-conda activate rapidlearn
-# Down load PyTorch wheel from https://developer.download.nvidia.com/compute/redist/jp/v502/
-wget https://developer.download.nvidia.com/compute/redist/jp/v502/pytorch/torch-1.13.0a0+410ce96a.nv22.12-cp38-cp38-linux_aarch64.whl
-pip install torch-1.13.0a0+410ce96a.nv22.12-cp38-cp38-linux_aarch64.whl
-# cd gym-donkeycar-mushr
-# python setup.py install # install the customized gym wrapper
-cd gym-donkeycar
-python setup.py install
-cd ../MUSHR-DL
-pip install -r requirements.txt # install the other dependencies
-```
+> ℹ️ The legacy x86 / JetPack 5.0.2 install instructions (Python 3.8, PyTorch
+> 1.13, gym 0.15.3) have moved to the [Legacy installation
+> (deprecated)](#legacy-installation-deprecated) appendix at the bottom of this
+> README. They are kept for reproducibility of the RTSS 2023 paper artifact only.
 
 2. Run the simulator on the x86 machine:
 Example (on Ubuntu 20.04)
@@ -160,3 +128,60 @@ Please cite our paper if you are inspired by R^3 in your work:
 [rl-baselines-zoo3](https://github.com/DLR-RM/rl-baselines3-zoo)
 
 [Replicable-MARL](https://github.com/Replicable-MARL/MARLlib) This is a new Multi-agent DRL benchmark which is supported by Ray and RLib!
+
+---
+
+## Legacy installation (deprecated)
+
+> ⚠️ The instructions in this section target the **original RTSS 2023 stack**
+> (Python 3.8, PyTorch 1.13, gym 0.15.3, JetPack 5.0.2). They are kept here
+> only for reproducibility of the published paper. JetPack 5.0.2 and PyTorch
+> 1.13 are no longer maintained and are known to fail on current Jetson
+> hardware (AGX Orin / Orin Nano on JP6).
+>
+> **For new work, use the modernized stack at the top of this README.**
+>
+> If you really need the original frozen artifact, check out the
+> [`v1.0.0-legacy`](https://github.com/ZexinLi0w0/R3/releases/tag/v1.0.0-legacy)
+> tag instead of running the snippets below on `main` / `upgrade/*`.
+
+On x86 PC
+
+Install Donkey simulator v22.11.06 from [Official version of Donkey Car](https://github.com/tawnkramer/gym-donkeycar).
+
+gym-donkeycar recommend version: cd0cad6
+
+Installation on PC
+```bash
+conda create -n rapidlearn python=3.8.10 # create a new conda environment named rapidlearn with python 3.8.10 (as on AGX)
+conda activate rapidlearn
+conda install pytorch torchvision torchaudio pytorch-cuda=11.7 -c pytorch -c nvidia # install pytorch 1.13.1 stable version
+# cd gym-donkeycar-mushr
+# python setup.py install # install the customized gym wrapper
+cd gym-donkeycar
+python setup.py install
+cd ../MUSHR-DL
+pip install -r requirements.txt # install the other dependencies
+```
+
+Installation on NVIDIA Jetson AGX
+
+Software version: Jetpack 5.0.2
+
+Hardware: NVIDIA Jetson AGX Orin & NVIDIA Jetson AGX Xavier
+
+Software: Ubuntu 20.04.5 LTS; Python 3.8.10; PyTorch 1.13.0; Tensorflow 1.15.5+nv22.12; gym 0.15.3; gym-donkeycar 1.3.0
+
+```bash
+conda create -n rapidlearn python=3.8.10 # create a new conda environment named rapidlearn with python 3.8.10 (as on AGX)
+conda activate rapidlearn
+# Down load PyTorch wheel from https://developer.download.nvidia.com/compute/redist/jp/v502/
+wget https://developer.download.nvidia.com/compute/redist/jp/v502/pytorch/torch-1.13.0a0+410ce96a.nv22.12-cp38-cp38-linux_aarch64.whl
+pip install torch-1.13.0a0+410ce96a.nv22.12-cp38-cp38-linux_aarch64.whl
+# cd gym-donkeycar-mushr
+# python setup.py install # install the customized gym wrapper
+cd gym-donkeycar
+python setup.py install
+cd ../MUSHR-DL
+pip install -r requirements.txt # install the other dependencies
+```

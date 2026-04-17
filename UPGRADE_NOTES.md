@@ -8,7 +8,7 @@ The original RTSS 2023 implementation of R³ was built on a dependency stack tha
 | Component | Legacy Release (v1.0.0-legacy) | Modernized Branch (`upgrade/...`) |
 |-----------|--------------------------------|-----------------------------------|
 | Python | 3.8.10 | 3.10 |
-| PyTorch | 1.13.0 | 2.5.x (`>=2.0`) |
+| PyTorch | 1.13.0 | 2.8.x (`>=2.5`) |
 | RL API | gym 0.15.3 | Gymnasium `>=0.29` |
 | autonomous-learning-library| 0.8.1 | 0.9.1 |
 | JetPack (Jetson) | 5.0.2 | 6.2 |
@@ -21,12 +21,18 @@ JetPack 6.2 comes with Python 3.10 by default.
    python3.10 -m venv ~/.venvs/r3
    source ~/.venvs/r3/bin/activate
    ```
-2. **Install PyTorch 2.5 for JetPack 6.2:**
+2. **Install PyTorch (>=2.8) for JetPack 6.2:**
    NVIDIA hosts wheels via Jetson AI Lab. For CUDA 12.6, run:
    ```bash
-   pip install --extra-index-url https://pypi.jetson-ai-lab.dev/jp6/cu126 torch torchvision torchaudio
+   pip install --extra-index-url https://pypi.jetson-ai-lab.io/jp6/cu126 "torch>=2.8" torchvision torchaudio
    ```
-   *(Check https://pypi.jetson-ai-lab.dev/ for the latest URLs depending on your exact minor JetPack/CUDA version).*
+   > **Note:** the JP6 / CUDA 12.6 index on Jetson AI Lab currently publishes
+   > `torch>=2.8` wheels only. The 2.5.x and 2.6.x lines were never built for
+   > this index, so the previous `torch>=2.5,<2.6` constraint is impossible to
+   > satisfy on a Jetson with this wheel source. We have relaxed the floor to
+   > `>=2.5` and verified `2.8.x` works end-to-end.
+
+   *(Check https://pypi.jetson-ai-lab.io/ for the latest URLs depending on your exact minor JetPack/CUDA version).*
 3. **Install other dependencies:**
    ```bash
    # Install modernized ALL
@@ -50,8 +56,21 @@ JetPack 6.2 comes with Python 3.10 by default.
   To mitigate security warnings and comply with PyTorch >=2.0, `torch.load()` calls have been updated to explicitly include `weights_only=False` where needed for legacy pickled model formats.
 
 ## Known Risks and Rollback
-Since we are bumping multiple major versions across the stack (Python, PyTorch, Gym), some implicit behaviors or random seeds might differ slightly from the original paper's runs. The code in `autonomous-learning-library/all/r3/` remains unmodified structurally, but the underlying neural network execution relies on PyTorch 2.5.
+Since we are bumping multiple major versions across the stack (Python, PyTorch, Gym), some implicit behaviors or random seeds might differ slightly from the original paper's runs. The code in `autonomous-learning-library/all/r3/` remains unmodified structurally, but the underlying neural network execution relies on PyTorch 2.8 (Jetson AI Lab JP6/cu126 floor).
 
 **Rollback Plan:**
 If you encounter breaking issues, need to reproduce exact paper numbers, or are stuck on JetPack 5.x, you should roll back to the frozen legacy release.
 👉 [v1.0.0-legacy Release](https://github.com/ZexinLi0w0/R3/releases/tag/v1.0.0-legacy)
+
+## Known Issues
+
+- **`MUSHR-DL/pytorch_model.py` is missing on this branch.** Several `.h5`
+  checkpoints under `MUSHR-DL/` (`steering.h5`, `bezier.h5`, `trajectory_1.h5`,
+  …) were pickled against a `pytorch_model` module that is not in this
+  repository. Loading them via `torch.load(..., weights_only=False)` therefore
+  raises `ModuleNotFoundError: No module named 'pytorch_model'`. We ship a
+  best-effort stub at `MUSHR-DL/pytorch_model.py` that re-exports the model
+  classes defined under `MUSHR-DL/models/`, but the exact original class layout
+  used to pickle these checkpoints could not be recovered. Treat this as a
+  pre-existing upstream bug (not introduced by the modernization PR). Tracked
+  for follow-up; see PR #1 discussion for details.

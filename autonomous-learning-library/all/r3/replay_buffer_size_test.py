@@ -25,17 +25,13 @@ class ReplayBufferSizeTest(unittest.TestCase):
     """
 
     def setUp(self):
-        device = "cuda"
-        try:
-            import torch
+        import torch
 
-            if not torch.cuda.is_available():
-                device = "cpu"
-        except ImportError:  # pragma: no cover - torch is a hard dep
-            device = "cpu"
+        device = "cuda" if torch.cuda.is_available() else "cpu"
 
         self._agent = (
-            dqn.hyperparameters(replay_buffer_size=100)
+            dqn.device(device)
+            .hyperparameters(replay_buffer_size=100)
             .env(GymEnvironment("CartPole-v0", device))
             .build()
             .agent()

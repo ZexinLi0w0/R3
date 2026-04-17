@@ -1,6 +1,16 @@
 import gymnasium
 import torch
 
+# ale-py >= 0.11 stopped auto-registering Atari envs into gymnasium. Without
+# this explicit register call, ``gymnasium.make("PongNoFrameskip-v4")`` fails
+# with NameNotFound even when ale_py is importable. Guarded so the import is
+# optional for users who don't want Atari at all.
+try:
+    import ale_py as _ale_py
+    gymnasium.register_envs(_ale_py)
+except Exception:
+    pass
+
 from all.core import State
 
 from ._environment import Environment

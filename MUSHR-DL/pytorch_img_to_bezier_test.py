@@ -16,7 +16,7 @@ WIDTH = 320
 CHANNELS = 1
 model_name = 'bezier.h5'
 
-checkpoint = torch.load(model_name)
+checkpoint = torch.load(model_name, weights_only=False)
 model = checkpoint['net']
 train_log = []
 output_path = os.getcwd()+"/Outputs_pytorch"

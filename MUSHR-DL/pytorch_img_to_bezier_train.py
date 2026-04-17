@@ -16,7 +16,7 @@ CHANNELS = 1
 
 net = Bezier(HEIGHT,WIDTH,CHANNELS).to(device)
 model_name = 'bezier.h5'
-# checkpoint = torch.load(model_name) #uncomment this and the line below to train an existing model
+# checkpoint = torch.load(model_name, weights_only=False) #uncomment this and the line below to train an existing model
 # net = checkpoint['net']
 train_log = []
 

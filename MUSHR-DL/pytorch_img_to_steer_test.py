@@ -10,7 +10,7 @@ WIDTH = 320
 CHANNELS = 1
 model_name = 'steering.h5'
 
-checkpoint = torch.load(model_name)
+checkpoint = torch.load(model_name, weights_only=False)
 model = checkpoint['net']
 model = model.to(device)
 

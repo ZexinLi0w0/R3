@@ -1,6 +1,8 @@
-import torch
 import numpy as np
+import torch
+
 from all.logging import DummyLogger
+
 from ._agent import Agent
 
 
@@ -26,16 +28,16 @@ class C51(Agent):
     """
 
     def __init__(
-            self,
-            q_dist,
-            replay_buffer,
-            discount_factor=0.99,
-            eps=1e-5,
-            exploration=0.02,
-            minibatch_size=32,
-            replay_start_size=5000,
-            update_frequency=1,
-            logger=DummyLogger(),
+        self,
+        q_dist,
+        replay_buffer,
+        discount_factor=0.99,
+        eps=1e-5,
+        exploration=0.02,
+        minibatch_size=32,
+        replay_start_size=5000,
+        update_frequency=1,
+        logger=DummyLogger(),
     ):
         # objects
         self.q_dist = q_dist
@@ -52,14 +54,13 @@ class C51(Agent):
         self._state = None
         self._action = None
         self._frames_seen = 0
-        self._isTraining = True
 
     def act(self, state):
         self.replay_buffer.store(self._state, self._action, state)
-        self._isTraining = self._train()
+        self._train()
         self._state = state
         self._action = self._choose_action(state)
-        return (self._action, self._isTraining)
+        return self._action
 
     def eval(self, state):
         return self._best_actions(self.q_dist.eval(state)).item()
@@ -82,7 +83,9 @@ class C51(Agent):
     def _train(self):
         if self._should_train():
             # sample transitions from buffer
-            states, actions, rewards, next_states, weights = self.replay_buffer.sample(self.minibatch_size)
+            states, actions, rewards, next_states, weights = self.replay_buffer.sample(
+                self.minibatch_size
+            )
             # forward pass
             dist = self.q_dist(states, actions)
             # compute target distribution
@@ -99,20 +102,17 @@ class C51(Agent):
                 "q_mean", (dist.detach() * self.q_dist.atoms).sum(dim=1).mean()
             )
 
-            return True
-        else:
-            return False
-
     def _should_train(self):
         self._frames_seen += 1
-        return self._frames_seen > self.replay_start_size and self._frames_seen % self.update_frequency == 0
+        return (
+            self._frames_seen > self.replay_start_size
+            and self._frames_seen % self.update_frequency == 0
+        )
 
     def _compute_target_dist(self, states, rewards):
         actions = self._best_actions(self.q_dist.no_grad(states))
         dist = self.q_dist.target(states, actions)
-        shifted_atoms = (
-            rewards.view((-1, 1)) + self.discount_factor * self.q_dist.atoms
-        )
+        shifted_atoms = rewards.view((-1, 1)) + self.discount_factor * self.q_dist.atoms
         return self.q_dist.project(dist, shifted_atoms)
 
     def _kl(self, dist, target_dist):
@@ -122,7 +122,7 @@ class C51(Agent):
 
 
 class C51TestAgent(Agent):
-    def __init__(self, q_dist, n_actions, exploration=0.):
+    def __init__(self, q_dist, n_actions, exploration=0.0):
         self.q_dist = q_dist
         self.n_actions = n_actions
         self.exploration = exploration

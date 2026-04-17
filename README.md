@@ -1,6 +1,43 @@
 # RTSS'23 R^3
 Official Implementation of RTSS 2023 paper [R^3: On-device Real-Time Deep Reinforcement Learning for Autonomous Robotics](https://arxiv.org/pdf/2308.15039).
 
+> ## 🚧 Modernized Branch (`upgrade/pytorch-2.5-gymnasium`)
+>
+> **You are reading the modernization branch of R³.** It targets a contemporary stack:
+>
+> | Component | Modernized branch | Original (legacy) |
+> |-----------|------------------|-------------------|
+> | Python | **3.10** | 3.8.10 |
+> | PyTorch | **2.5.x** (`>=2.0`) | 1.13.0 |
+> | RL API | **Gymnasium `>=0.29`** | gym 0.15.3 |
+> | autonomous-learning-library | **0.9.1** | 0.8.1 |
+> | JetPack (Jetson) | **6.2** | 5.0.2 |
+>
+> **Why?** JetPack 5.0.2 / PyTorch 1.13 / gym 0.15 are unmaintained. The modernized branch upgrades the dependency stack so the project keeps running on current Jetson hardware (AGX Orin / Orin Nano) without security or compatibility holes.
+>
+> **What stayed the same?** All R³ research code under `autonomous-learning-library/all/r3/` is preserved bit-for-bit. The rest of `autonomous-learning-library/` is a drop-in replacement of upstream `cpnota/autonomous-learning-library` v0.9.1.
+>
+> **Need the exact paper artifact?** Use the [v1.0.0-legacy release](https://github.com/ZexinLi0w0/R3/releases/tag/v1.0.0-legacy) (frozen RTSS 2023 snapshot).
+>
+> **Quick install on JetPack 6.2 (Jetson AGX Orin / Orin Nano):**
+> ```bash
+> # 1. Create env (Python 3.10 ships with JetPack 6.2)
+> python3.10 -m venv ~/.venvs/r3 && source ~/.venvs/r3/bin/activate
+>
+> # 2. Install PyTorch 2.5 wheel from Jetson AI Lab
+> #    Browse https://pypi.jetson-ai-lab.dev/jp6/cu126 for the wheel that matches
+> #    your JetPack 6.2 / CUDA 12.6 build, then:
+> pip install --extra-index-url https://pypi.jetson-ai-lab.dev/jp6/cu126 \
+>     torch torchvision torchaudio
+>
+> # 3. Install the rest
+> cd autonomous-learning-library && pip install -e . && cd ..
+> cd gym-donkeycar && pip install -e . && cd ..
+> cd MUSHR-DL && pip install -r requirements.txt && cd ..
+> ```
+>
+> 📖 Full migration story: see [`UPGRADE_NOTES.md`](./UPGRADE_NOTES.md).
+
 # Overview
 R^3 is a comprehensive solution designed to optimize on-device real-time DRL training by managing the intricate balance between timing and algorithm performance, specifically in memory-constrained environments. The approach involves co-optimizing two pivotal parameters of DRL training:
 

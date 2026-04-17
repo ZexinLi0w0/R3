@@ -117,7 +117,7 @@ print(model)
 train_log = []
 torch.cuda.empty_cache()
 <<<<<<< Updated upstream
-X, Y = torch.load('data.pt')
+X, Y = torch.load('data.pt', weights_only=False)
 =======
 train_data = np.load('MUSHR_320x240_{}.npy'.format(args.dataset_name),allow_pickle=True)
 
@@ -136,7 +136,7 @@ if args.test:
         print("model path not specified")
         exit(1)
 <<<<<<< Updated upstream
-    model.load_state_dict(torch.load(args.model_path))
+    model.load_state_dict(torch.load(args.model_path, weights_only=False))
     test(model, X, Y)
     exit(0)
 =======

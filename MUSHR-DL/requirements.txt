@@ -1,11 +1,12 @@
-# tensorflow==1.15.4
-# Keras==2.3.1
-# opencv-contrib-python==3.4.0.12
-opencv-contrib-python
-numpy==1.18.1
-pynput==1.6.8
-scikit-image==0.15.0
-tqdm==4.46.1
-scipy==1.4.1
-screeninfo==0.6.5
-
+# MUSHR-DL dependencies (modernized branch)
+# Pins relaxed to be compatible with PyTorch 2.5 / Python 3.10 on JetPack 6.2.
+# See ../UPGRADE_NOTES.md for the migration story.
+# tensorflow>=2  # legacy code path - re-enable only if needed
+# Keras>=2.6
+opencv-contrib-python>=4
+numpy>=1.22
+pynput>=1.7
+scikit-image>=0.21
+tqdm>=4.60
+scipy>=1.10
+screeninfo>=0.8

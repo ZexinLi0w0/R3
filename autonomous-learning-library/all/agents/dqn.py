@@ -1,11 +1,11 @@
-import numpy as np
 import torch
 from torch.nn.functional import mse_loss
+
 from ._agent import Agent
 
 
 class DQN(Agent):
-    '''
+    """
     Deep Q-Network (DQN).
     DQN was one of the original deep reinforcement learning algorithms.
     It extends the ideas behind Q-learning to work well with modern convolution networks.
@@ -25,18 +25,19 @@ class DQN(Agent):
         n_actions (int): The number of available actions.
         replay_start_size (int): Number of experiences in replay buffer when training begins.
         update_frequency (int): Number of timesteps per training update.
-    '''
+    """
 
-    def __init__(self,
-                 q,
-                 policy,
-                 replay_buffer,
-                 discount_factor=0.99,
-                 loss=mse_loss,
-                 minibatch_size=32,
-                 replay_start_size=5000,
-                 update_frequency=1,
-                 ):
+    def __init__(
+        self,
+        q,
+        policy,
+        replay_buffer,
+        discount_factor=0.99,
+        loss=mse_loss,
+        minibatch_size=32,
+        replay_start_size=5000,
+        update_frequency=1,
+    ):
         # objects
         self.q = q
         self.policy = policy
@@ -51,14 +52,13 @@ class DQN(Agent):
         self._state = None
         self._action = None
         self._frames_seen = 0
-        self._isTraining = True
 
     def act(self, state):
         self.replay_buffer.store(self._state, self._action, state)
-        self._isTraining = self._train()
+        self._train()
         self._state = state
         self._action = self.policy.no_grad(state)
-        return self._action, self._isTraining
+        return self._action
 
     def eval(self, state):
         return self.policy.eval(state)
@@ -66,23 +66,27 @@ class DQN(Agent):
     def _train(self):
         if self._should_train():
             # sample transitions from buffer
-            (states, actions, rewards, next_states, _) = self.replay_buffer.sample(self.minibatch_size)
+            (states, actions, rewards, next_states, _) = self.replay_buffer.sample(
+                self.minibatch_size
+            )
             # forward pass
             values = self.q(states, actions)
             # compute targets
-            targets = rewards + self.discount_factor * torch.max(self.q.target(next_states), dim=1)[0]
+            targets = (
+                rewards
+                + self.discount_factor * torch.max(self.q.target(next_states), dim=1)[0]
+            )
             # compute loss
             loss = self.loss(values, targets)
             # backward pass
             self.q.reinforce(loss)
 
-            return True
-        else:
-            return False
-
     def _should_train(self):
         self._frames_seen += 1
-        return (self._frames_seen > self.replay_start_size and self._frames_seen % self.update_frequency == 0)
+        return (
+            self._frames_seen > self.replay_start_size
+            and self._frames_seen % self.update_frequency == 0
+        )
 
 
 class DQNTestAgent(Agent):

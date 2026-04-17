@@ -35,7 +35,7 @@ x_scale = 30
 y_scale = 30
 
 model_name = 'trajectory.h5'
-checkpoint = torch.load(model_name)
+checkpoint = torch.load(model_name, weights_only=False)
 model = checkpoint['net']
 model = model.to(device)
 print("model loaded")

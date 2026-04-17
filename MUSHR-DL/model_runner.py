@@ -36,18 +36,18 @@ class model_runner():
         self.K_v = m.tan(self.fov_v/2)
         # selecting type of neural net:
         if (self.model_name == 'steering'):
-            checkpoint = torch.load('steering.h5')
+            checkpoint = torch.load('steering.h5', weights_only=False)
             self.model = checkpoint['net']
             self.model = self.model.to(device)
             print('steering model loaded')
         elif (self.model_name == 'bezier'):
-            checkpoint = torch.load('bezier.h5')
+            checkpoint = torch.load('bezier.h5', weights_only=False)
             self.model = checkpoint['net']
             self.model = self.model.to(device)
             self.model_sleep = 1/120
             print('bezier model loaded')
         elif (self.model_name == 'image_image'):
-            checkpoint = torch.load('trajectory_1.h5')
+            checkpoint = torch.load('trajectory_1.h5', weights_only=False)
             self.model = checkpoint['net']
             self.model = self.model.to(device)
             self.roi_vert = np.array([[self.WIDTH*0.05,self.HEIGHT*0.99],[self.WIDTH*0.1,self.HEIGHT*0.6],[self.WIDTH*0.9,self.HEIGHT*0.6],[self.WIDTH*0.95,self.HEIGHT*0.99]],dtype=np.int32)
@@ -55,20 +55,13 @@ class model_runner():
             print('image-image model loaded')
         elif (self.model_name == 'steering_dave2'):
             self.model = models.get_model("dave2")
-<<<<<<< Updated upstream
-            state_dict = torch.load(model_path)
+            state_dict = torch.load(model_path, weights_only=False)
             self.model.load_state_dict(state_dict)
-=======
-            # state_dict = torch.load('./batch_16/steering_model_2023_3_18_10_56_batch_16_epoch_1.pth')
-            state_dict = torch.load('./steering_model_2023_2_22_20_34_batch_32_epoch_12.pth')
-
-            self.model.load_state_dict(state_dict['net'])
->>>>>>> Stashed changes
             self.model = self.model.to(device)
             print('steering model loaded, model name: dave2')
         elif (self.model_name == 'steering_resnet'):
             self.model = models.get_model("resnet")
-            # self.model.load_state_dict(torch.load('steering_resnet.h5'))
+            # self.model.load_state_dict(torch.load('steering_resnet.h5', weights_only=False))
             self.model = self.model.to(device)
             print('steering model loaded, model name: resnet18')
         else:
@@ -119,15 +112,9 @@ class model_runner():
                             self.th = self.input_th # feedforward on the throttle
                             print(self.st, self.th)
                         elif(self.model_name in ['steering_dave2', 'steering_resnet']):
-<<<<<<< Updated upstream
-                            img /= 255.0
-                            img -= 0.5
-=======
                             # normalize image to [-0.5, 0.5]
                             img /= 255.0
                             img -= 0.5
-
->>>>>>> Stashed changes
                             raw_output = self.model(img)
                             output = raw_output.cpu().numpy()[0]
                             self.st = float(output)

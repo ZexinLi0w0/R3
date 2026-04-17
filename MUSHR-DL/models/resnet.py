@@ -2,7 +2,6 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 # from torchvision import transforms
-from torch.autograd import Variable
 import numpy as np
 import cv2
 import os
@@ -90,7 +89,7 @@ if __name__ == '__main__':
     model = ResNet()
 
     # Load the pre-trained weights
-    # model.load_state_dict(torch.load('resnet18.pth'))
+    # model.load_state_dict(torch.load('resnet18.pth', weights_only=False))
 
     # Set the model to evaluate mode
     model.eval()

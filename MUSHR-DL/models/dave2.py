@@ -2,7 +2,6 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 # from torchvision import transforms
-from torch.autograd import Variable
 import numpy as np
 import cv2
 import os
@@ -62,7 +61,7 @@ if __name__ == '__main__':
     model = NVIDIA_Dave2()
 
     # Load the pre-trained weights
-    # model.load_state_dict(torch.load('nvidia_dave2_weights.pth'))
+    # model.load_state_dict(torch.load('nvidia_dave2_weights.pth', weights_only=False))
 
     # Set the model to evaluate mode
     model.eval()

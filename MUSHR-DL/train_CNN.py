@@ -116,41 +116,15 @@ print(model)
 
 train_log = []
 torch.cuda.empty_cache()
-<<<<<<< Updated upstream
-X, Y = torch.load('data.pt')
-=======
-train_data = np.load('MUSHR_320x240_{}.npy'.format(args.dataset_name),allow_pickle=True)
-
-X = torch.Tensor([i[0] for i in train_data]).unsqueeze(1).to(device) # [n, 1, 90, 160]
-X = F.interpolate(X, size=(240, 320), mode='bilinear', align_corners=False) # [n, 1, 240, 320]
-X /= 255.0
-X -= 0.5
-
-Y = torch.Tensor([i[3][4] for i in train_data])\
-    .unsqueeze(-1)\
-    .to(device) # [n] -> [n,1]
->>>>>>> Stashed changes
+X, Y = torch.load('data.pt', weights_only=False)
 
 if args.test:
     if args.model_path is None:
         print("model path not specified")
         exit(1)
-<<<<<<< Updated upstream
-    model.load_state_dict(torch.load(args.model_path))
+    model.load_state_dict(torch.load(args.model_path, weights_only=False))
     test(model, X, Y)
     exit(0)
-=======
-    predictions = []
-    model.eval()
-    with torch.no_grad():
-        average_error = 0
-        for i in range(X.shape[0]):
-            predictions.append(model(X[i].unsqueeze(0)))
-        for i in range(len(predictions)):
-            average_error += abs(Y[i] - predictions[i][0])
-        print('average error: {}'.format(average_error/len(predictions)))
-        exit(0)
->>>>>>> Stashed changes
 
 stored_model_name = 'steering_model_{}_{}_{}_{}_{}'.format(a.tm_year,a.tm_mon,a.tm_mday,a.tm_hour,a.tm_min)
 log_name = 'steering_log_{}_{}_{}_{}_{}.npy'.format(a.tm_year,a.tm_mon,a.tm_mday,a.tm_hour,a.tm_min)

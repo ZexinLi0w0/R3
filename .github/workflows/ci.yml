@@ -88,13 +88,20 @@ jobs:
           python -m pip install --upgrade pip
           # CPU-only torch from PyPI (Jetson AI Lab wheels skipped on x86 runner)
           pip install --index-url https://download.pytorch.org/whl/cpu "torch>=2.5,<2.9"
-          pip install pytest "numpy<2"
+          # torch_testing is a dev-only dep used by ALL's memory tests
+          # (replay_buffer_test.py / advantage_test.py); not in install_requires.
+          pip install pytest "numpy<2" torch_testing
           pip install -e ./autonomous-learning-library
 
       - name: Run R3 unit tests
         run: |
           cd autonomous-learning-library
           python -m pytest all/r3/ -v --tb=short
+
+      - name: Run ALL memory tests (covers buffer_resize/stop_thread shims)
+        run: |
+          cd autonomous-learning-library
+          python -m pytest all/memory/ -v --tb=short
 
   # ---------------------------------------------------------------------------
   # Job 3: Smoke imports

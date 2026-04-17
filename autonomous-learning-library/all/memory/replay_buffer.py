@@ -35,6 +35,42 @@ class ExperienceReplayBuffer(ReplayBuffer):
             store_device = self.device
         self.store_device = torch.device(store_device)
 
+    def buffer_resize(self, size):
+        """Resize the underlying replay buffer to the given capacity.
+
+        This is the R3 paper API (`agent.replay_buffer.buffer_resize(...)`).
+        Restored on top of ALL 0.9.1 for R3 compatibility (PR #1 upgraded ALL
+        from 0.8.1 to 0.9.1, which dropped this method together with the
+        threaded async-sample implementation).
+
+        Behaviour matches the legacy ALL 0.8.1 implementation:
+        - non-positive ``size`` is a no-op (defensive guard)
+        - if shrinking and the buffer already holds more than ``size``
+          elements, drop the oldest items so length stays <= new capacity
+        - reset ``pos`` to 0 after a shrink so future writes start at the
+          head of the (now smaller) buffer
+        - update ``self.capacity`` to the new size
+        """
+        if size <= 0:
+            return
+        if size < self.capacity:
+            if len(self.buffer) > size:
+                # Drop oldest entries (FIFO trim).
+                del self.buffer[: len(self.buffer) - size]
+                self.pos = 0
+        self.capacity = int(size)
+
+    def stop_thread(self):
+        """No-op kept for R3 API compatibility.
+
+        Legacy ALL 0.8.1 ran an asynchronous sampler thread inside the
+        replay buffer; ``stop_thread`` was the way to shut it down on
+        teardown. ALL 0.9.1 samples synchronously, so there is no thread
+        to stop, but R3 unit tests still call this in ``tearDown``. We keep
+        the method as a no-op so vendored R3 code does not need changes.
+        """
+        return None
+
     def store(self, state, action, next_state):
         if state is not None and not state.done:
             state = state.to(self.store_device)
@@ -207,6 +243,16 @@ class NStepReplayBuffer(ReplayBuffer):
 
     def update_priorities(self, *args, **kwargs):
         return self.buffer.update_priorities(*args, **kwargs)
+
+    def buffer_resize(self, size):
+        """Forward R3's buffer_resize to the wrapped buffer."""
+        if hasattr(self.buffer, "buffer_resize"):
+            self.buffer.buffer_resize(size)
+
+    def stop_thread(self):
+        """Forward R3's stop_thread to the wrapped buffer (no-op in 0.9.1)."""
+        if hasattr(self.buffer, "stop_thread"):
+            self.buffer.stop_thread()
 
     def __len__(self):
         return len(self.buffer)

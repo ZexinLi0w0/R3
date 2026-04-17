@@ -64,13 +64,14 @@ If you encounter breaking issues, need to reproduce exact paper numbers, or are 
 
 ## Known Issues
 
-- **`MUSHR-DL/pytorch_model.py` is missing on this branch.** Several `.h5`
-  checkpoints under `MUSHR-DL/` (`steering.h5`, `bezier.h5`, `trajectory_1.h5`,
-  …) were pickled against a `pytorch_model` module that is not in this
-  repository. Loading them via `torch.load(..., weights_only=False)` therefore
-  raises `ModuleNotFoundError: No module named 'pytorch_model'`. We ship a
-  best-effort stub at `MUSHR-DL/pytorch_model.py` that re-exports the model
-  classes defined under `MUSHR-DL/models/`, but the exact original class layout
-  used to pickle these checkpoints could not be recovered. Treat this as a
-  pre-existing upstream bug (not introduced by the modernization PR). Tracked
-  for follow-up; see PR #1 discussion for details.
+- **PyTorch 2.x `SourceChangeWarning` when loading legacy `MUSHR-DL/*.h5`
+  checkpoints.** The `steering.h5`, `bezier.h5`, `bezier_0.5.h5`, and
+  `bezier_1.5.h5` files were pickled with the legacy (non-zip) `torch.save`
+  format and reference the `Net` / `Bezier` classes defined in
+  `MUSHR-DL/pytorch_model.py`. They still load correctly under PyTorch 2.8 +
+  `weights_only=False`, but PyTorch will emit a `SourceChangeWarning` for
+  every stdlib `nn.*` module whose source has shifted between the original
+  PyTorch 1.13 build and 2.8 (`Sequential`, `BatchNorm2d`, `Conv2d`, `ELU`,
+  `MaxPool2d`, `Dropout`, `Linear`). The warnings are cosmetic; inference
+  works. To re-pickle without warnings, retrain or call `torch.save` again
+  on the loaded model on the new stack.

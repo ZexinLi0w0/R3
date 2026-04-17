@@ -65,11 +65,10 @@ jobs:
   #   - Runs pytest against the *self-contained* R3 unit-test files. The
   #     bare-import bug from PR #1 was fixed in 331c54c so these now collect
   #     correctly from the repo root.
-  #   - replay_buffer_size_test.py is intentionally deselected: it exercises
-  #     a research-code path (R3 dynamic replay buffer resizing) that depends
-  #     on a `buffer_resize` method that does not exist on ALL 0.9.1's
-  #     ExperienceReplayBuffer. That's a research-vs-upstream API gap that
-  #     pre-dates this modernization PR and is tracked separately.
+  #   - All four R3 test modules are executed, including
+  #     replay_buffer_size_test.py, which now passes thanks to the
+  #     buffer_resize/stop_thread shims restored on ExperienceReplayBuffer
+  #     (see fix/r3-buffer-resize-compat).
   # ---------------------------------------------------------------------------
   r3-tests:
     name: R3 module pytest
@@ -92,11 +91,10 @@ jobs:
           pip install pytest "numpy<2"
           pip install -e ./autonomous-learning-library
 
-      - name: Run R3 unit tests (excluding replay_buffer_size, see job header)
+      - name: Run R3 unit tests
         run: |
           cd autonomous-learning-library
-          python -m pytest all/r3/ -v --tb=short \
-            --ignore=all/r3/replay_buffer_size_test.py
+          python -m pytest all/r3/ -v --tb=short
 
   # ---------------------------------------------------------------------------
   # Job 3: Smoke imports

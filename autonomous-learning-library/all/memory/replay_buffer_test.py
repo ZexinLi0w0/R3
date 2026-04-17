@@ -52,6 +52,52 @@ class TestExperienceReplayBuffer(unittest.TestCase):
         )
         np.testing.assert_array_equal(expected_weights, np.vstack(actual_weights))
 
+    def test_buffer_resize_shrink_drops_oldest(self):
+        # R3 compat: shrinking the buffer must drop the oldest entries (FIFO).
+        buf = ExperienceReplayBuffer(5)
+        for i in range(5):
+            state = State(torch.tensor(i))
+            next_state = State(torch.tensor(i + 1), reward=torch.tensor(0.0))
+            buf.store(state, torch.tensor([i]), next_state)
+        self.assertEqual(len(buf), 5)
+        self.assertEqual(buf.capacity, 5)
+
+        buf.buffer_resize(3)
+        self.assertEqual(buf.capacity, 3)
+        self.assertEqual(len(buf), 3)
+        # Oldest two entries (observations 0 and 1) should be gone.
+        observations = [item[0].observation.item() for item in buf.buffer]
+        self.assertEqual(observations, [2, 3, 4])
+        self.assertEqual(buf.pos, 0)
+
+    def test_buffer_resize_grow_keeps_contents(self):
+        buf = ExperienceReplayBuffer(2)
+        for i in range(2):
+            state = State(torch.tensor(i))
+            next_state = State(torch.tensor(i + 1), reward=torch.tensor(0.0))
+            buf.store(state, torch.tensor([i]), next_state)
+        buf.buffer_resize(10)
+        self.assertEqual(buf.capacity, 10)
+        self.assertEqual(len(buf), 2)
+
+    def test_buffer_resize_non_positive_is_noop(self):
+        buf = ExperienceReplayBuffer(4)
+        for i in range(2):
+            state = State(torch.tensor(i))
+            next_state = State(torch.tensor(i + 1), reward=torch.tensor(0.0))
+            buf.store(state, torch.tensor([i]), next_state)
+        buf.buffer_resize(0)
+        self.assertEqual(buf.capacity, 4)
+        self.assertEqual(len(buf), 2)
+        buf.buffer_resize(-3)
+        self.assertEqual(buf.capacity, 4)
+
+    def test_stop_thread_is_noop(self):
+        # Should be safe to call multiple times without raising.
+        buf = ExperienceReplayBuffer(4)
+        buf.stop_thread()
+        buf.stop_thread()
+
     def test_store_device(self):
         if torch.cuda.is_available():
             self.replay_buffer = ExperienceReplayBuffer(

@@ -49,12 +49,14 @@ set -o pipefail
 # ``hours_estimate`` is rough Orin AGX wall-clock per seed.
 # Add new experiments here as the codebase grows; ``--list`` will pick them up.
 #------------------------------------------------------------------------------#
+# NOTE: ALL's all-atari CLI appends "NoFrameskip-v4" itself, so pass the
+# short env name ("Pong", "Breakout", "Seaquest") here.
 CATALOG=(
-    "atari-pong-dqn|PongNoFrameskip-v4|dqn|10000000|3|Fig.6 / Tab.II|14|Canonical Atari baseline; converges to ~+20"
-    "atari-breakout-dqn|BreakoutNoFrameskip-v4|dqn|10000000|3|Fig.6 / Tab.II|18|Atari benchmark; ~150 game-score by 10M"
-    "atari-seaquest-dqn|SeaquestNoFrameskip-v4|dqn|10000000|3|Fig.6 / Tab.II|18|Atari benchmark; sparse reward"
-    "atari-pong-rainbow|PongNoFrameskip-v4|rainbow|10000000|2|Fig.7 (algo ablation)|16|R³ vs vanilla on Rainbow"
-    "atari-pong-c51|PongNoFrameskip-v4|c51|10000000|2|Fig.7 (algo ablation)|16|R³ vs vanilla on C51"
+    "atari-pong-dqn|Pong|dqn|10000000|3|Fig.6 / Tab.II|14|Canonical Atari baseline; converges to ~+20"
+    "atari-breakout-dqn|Breakout|dqn|10000000|3|Fig.6 / Tab.II|18|Atari benchmark; ~150 game-score by 10M"
+    "atari-seaquest-dqn|Seaquest|dqn|10000000|3|Fig.6 / Tab.II|18|Atari benchmark; sparse reward"
+    "atari-pong-rainbow|Pong|rainbow|10000000|2|Fig.7 (algo ablation)|16|R³ vs vanilla on Rainbow"
+    "atari-pong-c51|Pong|c51|10000000|2|Fig.7 (algo ablation)|16|R³ vs vanilla on C51"
 )
 
 OUT_OF_SCOPE=(

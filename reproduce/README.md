@@ -81,7 +81,7 @@ layout rule.
 bash reproduce/run_smoke.sh
 # or
 FRAMES=10000 bash reproduce/run_smoke.sh
-ENV=BreakoutNoFrameskip-v4 bash reproduce/run_smoke.sh
+ENV=Breakout bash reproduce/run_smoke.sh   # short name; ALL appends NoFrameskip-v4
 ```
 
 What it checks, in order:
@@ -133,11 +133,11 @@ paper. The current (Atari-only) catalog:
 
 | Name                  | Env                       | Agent   | Frames     | Seeds | Paper figure              |
 |-----------------------|---------------------------|---------|------------|-------|---------------------------|
-| `atari-pong-dqn`      | `PongNoFrameskip-v4`      | dqn     | 10 000 000 | 3     | Fig. 6 / Table II         |
-| `atari-breakout-dqn`  | `BreakoutNoFrameskip-v4`  | dqn     | 10 000 000 | 3     | Fig. 6 / Table II         |
-| `atari-seaquest-dqn`  | `SeaquestNoFrameskip-v4`  | dqn     | 10 000 000 | 3     | Fig. 6 / Table II         |
-| `atari-pong-rainbow`  | `PongNoFrameskip-v4`      | rainbow | 10 000 000 | 2     | Fig. 7 (algorithm ablation)|
-| `atari-pong-c51`      | `PongNoFrameskip-v4`      | c51     | 10 000 000 | 2     | Fig. 7 (algorithm ablation)|
+| `atari-pong-dqn`      | `Pong` (→ `PongNoFrameskip-v4`)         | dqn     | 10 000 000 | 3     | Fig. 6 / Table II         |
+| `atari-breakout-dqn`  | `Breakout` (→ `BreakoutNoFrameskip-v4`) | dqn     | 10 000 000 | 3     | Fig. 6 / Table II         |
+| `atari-seaquest-dqn`  | `Seaquest` (→ `SeaquestNoFrameskip-v4`) | dqn     | 10 000 000 | 3     | Fig. 6 / Table II         |
+| `atari-pong-rainbow`  | `Pong`                                  | rainbow | 10 000 000 | 2     | Fig. 7 (algorithm ablation)|
+| `atari-pong-c51`      | `Pong`                                  | c51     | 10 000 000 | 2     | Fig. 7 (algorithm ablation)|
 
 ### 3.4 Inventory — `list_experiments.py`
 

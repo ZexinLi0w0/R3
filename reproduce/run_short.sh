@@ -43,7 +43,9 @@ set -o pipefail
 # Knobs.
 #------------------------------------------------------------------------------#
 FRAMES="${FRAMES:-250000}"
-ENV_NAME="${ENV:-PongNoFrameskip-v4}"
+# NOTE: ALL's all-atari CLI wraps the env name with "NoFrameskip-v4" itself,
+# so pass the *short* name (e.g. "Pong", not "PongNoFrameskip-v4").
+ENV_NAME="${ENV:-Pong}"
 AGENT_NAME="${AGENT:-dqn}"
 DEVICE="${DEVICE:-cuda}"
 RUNS_ROOT="${RUNS_ROOT:-/experiment/zexin/R3/reproduce/runs}"

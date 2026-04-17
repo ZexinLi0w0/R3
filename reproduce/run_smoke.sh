@@ -55,7 +55,10 @@ set -o pipefail
 # Knobs (override via env vars).
 #------------------------------------------------------------------------------#
 FRAMES="${FRAMES:-20000}"
-ENV_NAME="${ENV:-PongNoFrameskip-v4}"
+# NOTE: ALL's all-atari CLI wraps the env name with "NoFrameskip-v4" itself
+# (see autonomous-learning-library/all/environments/atari.py). So pass the
+# *short* name here (e.g. "Pong", not "PongNoFrameskip-v4").
+ENV_NAME="${ENV:-Pong}"
 AGENT_NAME="${AGENT:-dqn}"
 DEVICE="${DEVICE:-cuda}"
 RUNS_ROOT="${RUNS_ROOT:-/experiment/zexin/R3/reproduce/runs}"
@@ -127,7 +130,7 @@ fi
 # Step 3 — micro Atari training run via all-atari.
 #------------------------------------------------------------------------------#
 echo
-echo "[smoke] step 3/4 — micro Atari training: ${AGENT_NAME} on ${ENV_NAME} for ${FRAMES} frames"
+echo "[smoke] step 3/4 — micro Atari training: ${AGENT_NAME} on ${ENV_NAME}NoFrameskip-v4 for ${FRAMES} frames"
 {
     cd "${RUN_DIR}"
     # Tiny replay buffer to keep Orin RAM happy at smoke scale; full paper

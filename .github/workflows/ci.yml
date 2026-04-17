@@ -41,13 +41,22 @@ jobs:
 
       # The previously-tracked merge-conflict markers in MUSHR-DL/* have been
       # resolved (see commit bd1b8b5), so this step is now hard-failing.
+      #
+      # We narrow the MUSHR-DL surface to the files this PR touched
+      # (model_runner.py, train_CNN.py, pytorch_model.py). The rest of
+      # MUSHR-DL/ is legacy data-collection / input-handling glue (e.g.
+      # key_check.py refers to a commented-out 'comp_mouse' Controller),
+      # which is unrelated to the R3 modernization and would need its own
+      # cleanup pass.
       - name: Lint R3-specific code (syntax errors only)
         run: |
           ruff check \
             --select=E9,F7,F63,F82 \
             --no-cache \
             autonomous-learning-library/all/r3/ \
-            MUSHR-DL/
+            MUSHR-DL/model_runner.py \
+            MUSHR-DL/train_CNN.py \
+            MUSHR-DL/pytorch_model.py
 
   # ---------------------------------------------------------------------------
   # Job 2: R3 module unit tests

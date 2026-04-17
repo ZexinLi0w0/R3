@@ -73,6 +73,10 @@ docs/_build/
 
 # PyBuilder
 target/
+# ...but the autonomous-learning-library ships a real Python package called
+# `target` under approximation/. Don't let the PyBuilder rule above swallow it.
+!autonomous-learning-library/all/approximation/target/
+!autonomous-learning-library/all/approximation/target/**
 
 # Jupyter Notebook
 .ipynb_checkpoints

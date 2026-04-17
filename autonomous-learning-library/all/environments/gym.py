@@ -6,7 +6,17 @@ from all.core import State
 from ._environment import Environment
 from .duplicate_env import DuplicateEnvironment
 
-gymnasium.logger.set_level(40)
+# Suppress non-critical Gymnasium warnings. Gymnasium 0.29 exposed a
+# `set_level()` helper on `gymnasium.logger`; Gymnasium 1.x removed it in
+# favor of mutating the `min_level` attribute directly. Try both so this
+# code keeps working across the 0.29 -> 1.x transition.
+try:
+    gymnasium.logger.set_level(40)
+except AttributeError:
+    try:
+        gymnasium.logger.min_level = 40
+    except Exception:
+        pass
 
 
 class GymEnvironment(Environment):

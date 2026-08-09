@@ -1,3 +1,5 @@
+
+
 # RTSS'23 R^3
 Official Implementation of RTSS 2023 paper [R^3: On-device Real-Time Deep Reinforcement Learning for Autonomous Robotics](https://arxiv.org/pdf/2308.15039).
 
@@ -72,12 +74,13 @@ python3 run_sim.py --dataset_name=testing --model=steering_dave2 --test=True --m
 ```
 
 4. Installing Autonomous Learning Library
-We need a specific version of `ale-py` to play the OpenAI Gym Atari games.
+We need a specific version of the Arcade Learning Environment (ALE) to play OpenAI Gym Atari games.
 ```
 git clone https://github.com/mgbellemare/Arcade-Learning-Environment.git
 cd Arcade-Learning-Environment
 git checkout 069f8bd860b9da816cea58c5ade791025a51c105
 # In setup.py turn the flags DSDL_SUPPORT and DSDL_DYNLOAD off
+pip install .
 ```
 Install swig
 ```
@@ -93,8 +96,8 @@ pip install -e .[dev]
 ### Citation
 Please cite our paper if you are inspired by R^3 in your work:
 ```
-@inproceedings{li2023mathrm,
-  title={$$\backslash$mathrm $\{$R$\}$\^{}$\{$3$\}$ $: On-Device Real-Time Deep Reinforcement Learning for Autonomous Robotics},
+@inproceedings{li2023paper,
+  title={\mathrm{R}^3: On-Device Real-Time Deep Reinforcement Learning for Autonomous Robotics},
   author={Li, Zexin and Samanta, Aritra and Li, Yufei and Soltoggio, Andrea and Kim, Hyoseung and Liu, Cong},
   booktitle={2023 IEEE Real-Time Systems Symposium (RTSS)},
   pages={131--144},
